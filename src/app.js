@@ -17,6 +17,14 @@ function imageVerification(avatar) {
 	}
 }
 
+function tweetsPagination(page){
+    if (page==="1"){             
+        return tweets.slice(0,10);
+    }else{
+        return tweets.slice(((page-1)*10),(page*10))
+    }   
+}
+
 app.post("/sign-up", (req, res) => {
 	const { username, avatar } = req.body;
 	if (!username || !avatar) {
@@ -40,16 +48,21 @@ app.post("/tweets", (req, res) => {
 		return;
 	}
 	const user = users.find((userLogged) => userLogged.username === username);
-	tweets.push({ tweet, username, avatar: user.avatar });
+	tweets.unshift({ tweet, username, avatar: user.avatar });
 	res.status(201).send({ username, avatar: user.avatar, tweet });
 });
 
-app.get("/tweets", (req, res) => {
-	const recentTweets = tweets.slice(-10);
-	res.send(recentTweets);
+app.get("/tweets", (req, res) => {   
+    const page = req.query.page;
+    if (!page || page<1 || isNaN(page)){
+        res.status(400).send("Informe uma página válida!");
+		return;
+    }    
+	const pageTweets = tweetsPagination(page);    
+	res.send(pageTweets);
 });
 
-app.get("/tweets/:username", (req, res) => {
+app.get("/tweets/:username", (req, res) => {   
     const username = req.params.username;
     const tweetsUser = tweets.filter((userLogged) => userLogged.username === username);	
 	res.send(tweetsUser);
