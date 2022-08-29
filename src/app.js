@@ -8,8 +8,13 @@ app.use(express.json());
 const tweets=[];
 const users=[];
 app.post('/sign-up',(req,res)=>{
-    const newUser = req.body;   
-    users.push(newUser);
+    const {username, avatar} = req.body;   
+    if (!username || !avatar){
+        res.status(400).send("Todos os campos são obrigatórios!");
+        return
+    }
+    users.push({username,avatar});
+
     res.send("OK");
 });
 app.post('/tweets',(req,res)=>{
